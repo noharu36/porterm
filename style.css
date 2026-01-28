@@ -1,0 +1,376 @@
+:root {
+    /* Gruvbox Dark Palette - Hard Contrast */
+    --bg-hard: #1d2021;
+    /* Keep hard dark */
+    --bg: #1d2021;
+    /* Match window bg to hard bg for seamless look or slight off? Let's use hard. */
+    /* Actually user wants contrast. Let's make window bg slightly lighter than body? */
+    /* Revised for Hard Contrast: */
+    --bg-body: #141617;
+    /* Deeper black/grey for background */
+    --bg-window: #1d2021;
+    /* Hard grey for windows */
+
+    --bg0: #1d2021;
+    --bg1: #3c3836;
+    /* Lighter for bars */
+    --bg2: #665c54;
+    /* Lighter border for contrast */
+    --bg3: #7c6f64;
+
+    --fg: #fbf1c7;
+    /* C0 (Brightest) for main text */
+    --fg0: #fbf1c7;
+    --fg1: #ebdbb2;
+    /* Normal text */
+    --fg2: #d5c4a1;
+    --fg3: #bdae93;
+    --fg4: #a89984;
+    /* Dim text */
+
+    --red: #fb4934;
+    /* Bright variants by default for contrast */
+    --green: #b8bb26;
+    --yellow: #fabd2f;
+    --blue: #83a598;
+    --purple: #d3869b;
+    --aqua: #8ec07c;
+    --gray: #928374;
+    --orange: #fe8019;
+
+    /* Dim variants */
+    --red-dim: #cc241d;
+    --green-dim: #98971a;
+    --yellow-dim: #d79921;
+    --blue-dim: #458588;
+    --purple-dim: #b16286;
+    --aqua-dim: #689d6a;
+    --orange-dim: #d65d0e;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    margin: 0;
+    padding: 12px;
+    /* Unify padding with gap */
+    height: 100vh;
+    overflow: hidden;
+}
+
+#app {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    /* 3 Cols: Main (2fr) | Sub (1fr) | Sub (1fr) */
+    grid-template-columns: 2fr 1fr 1fr;
+    /* Rows: Bar (auto) | Top Row | Bottom Row */
+    grid-template-rows: auto 1fr 1fr;
+    gap: 12px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* Bar Component */
+.bar {
+    grid-column: 1 / -1;
+    background-color: var(--bg0);
+    /* Use window bg */
+    border-bottom: 2px solid var(--bg2);
+    padding: 2px 12px;
+    /* Thinner padding matches body padding L/R */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px;
+    /* Remove margin, use gap */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    /* Stronger shadow */
+    height: 32px;
+}
+
+.bar-item {
+    background: none;
+    border: none;
+    color: var(--fg4);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 20px;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+/* ... existing styles ... */
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 250px;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    border-bottom: 1px dotted var(--bg2);
+    padding-bottom: 1px;
+}
+
+.key {
+    color: var(--yellow);
+    /* Brighter yellow */
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.value {
+    color: var(--fg1);
+}
+
+.bar-item:hover {
+    color: var(--fg0);
+    background-color: var(--bg1);
+}
+
+.bar-item.active {
+    color: var(--bg-body);
+    /* Inverted text */
+    background-color: var(--orange);
+}
+
+.bar-clock {
+    color: var(--fg2);
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* Window Component Styles */
+.window {
+    background-color: var(--bg-window);
+    border: 2px solid var(--bg2);
+    /* Brighter border */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: border-color 0.2s;
+}
+
+.window:hover {
+    border-color: var(--fg4);
+}
+
+/* Grid Slots */
+.main-window {
+    grid-column: 1 / 2;
+    grid-row: 2 / 4;
+}
+
+.sub-a {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+.sub-b {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+.sub-c {
+    grid-column: 2 / 4;
+    grid-row: 3 / 4;
+}
+
+.window-header {
+    background-color: var(--bg1);
+    color: var(--fg2);
+    padding: 4px 8px;
+    /* Thinner */
+    font-weight: bold;
+    font-size: 0.85em;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--bg2);
+    height: 28px;
+    /* Fixed height for header */
+    align-items: center;
+}
+
+.title {
+    color: var(--fg);
+}
+
+.controls {
+    color: var(--fg4);
+}
+
+.window-content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    color: var(--fg);
+}
+
+/* View Transition Animation Speed */
+::view-transition-group(*) {
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    mix-blend-mode: normal;
+    /* Better for moving opaque windows */
+}
+
+/* Chart Styles */
+.chart-label {
+    font-size: 10px;
+    fill: var(--fg4);
+    font-family: inherit;
+}
+
+/* Fastfetch/Profile Specifics */
+.profile-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    /* Center vertically */
+    height: 100%;
+    font-size: 0.95em;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid var(--orange);
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 250px;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    border-bottom: 1px dotted var(--bg2);
+    padding-bottom: 1px;
+}
+
+
+.key {
+    color: var(--yellow-dim);
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.value {
+    color: var(--fg1);
+}
+
+/* Hide Profile Image in small windows */
+.sub-a .profile-image-container,
+.sub-b .profile-image-container,
+.sub-c .profile-image-container {
+    display: none;
+}
+
+.sub-a .profile-container,
+.sub-b .profile-container,
+.sub-c .profile-container {
+    padding-top: 5px;
+    align-items: flex-start;
+}
+
+.sub-a .info-item,
+.sub-b .info-item {
+    font-size: 0.8em;
+    gap: 5px;
+}
+
+.sub-a .profile-container,
+.sub-b .profile-container,
+.sub-c .profile-container {
+    padding-top: 5px;
+    align-items: flex-start;
+}
+
+.sub-a .info-item,
+.sub-b .info-item {
+    font-size: 0.8em;
+    gap: 5px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bg4);
+}
+
+/* GitHub Activity Styles */
+.event-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.event-item {
+    margin-bottom: 12px;
+    font-size: 0.9em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    padding: 8px;
+    background-color: var(--bg1);
+    border-radius: 4px;
+    border: 1px solid var(--bg2);
+}
+
+.event-time {
+    color: var(--gray);
+    margin-right: 12px;
+    font-size: 0.85em;
+    font-family: monospace;
+}
+
+.event-type {
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.event-repo {
+    color: var(--blue-dim);
+    font-weight: bold;
+    word-break: break-all;
+}
+
+/* Placeholder */
+.placeholder-content {
+    color: var(--fg4);
+    opacity: 0.7;
+}
