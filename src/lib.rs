@@ -94,8 +94,9 @@ pub fn App() -> impl IntoView {
         ContentId::Contact => view! {
             <div style="padding: 20px">
                 <h3>"Contact Me"</h3>
-                <p>"Email: noharu@example.com"</p>
-                <p>"Twitter: @noharu"</p>
+                <p>"Github: " <a href="https://github.com/noharu36">"github.com/noharu36"</a></p>
+                <p>"Twitter(X): " <a href="https://x.com/pieceofharuki">"@pieceofharuki"</a></p>
+                <p>"Blog: " <a href="https://zenn.dev/haru_blog">"zenn.dev/haru_blog"</a></p>
             </div>
         }
         .into_view(),

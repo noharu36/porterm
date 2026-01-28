@@ -43,14 +43,6 @@ pub fn Profile() -> impl IntoView {
                     <span class="key">"Terminal"</span>
                     <span class="value">"rio 0.2.37"</span>
                 </div>
-                <div class="info-item">
-                    <span class="key">"GitHub"</span>
-                    <span class="value">"github.com/noharu36"</span>
-                </div>
-                <div class="info-item">
-                    <span class="key">"Twitter(X)"</span>
-                    <span class="value">"@pieceofharuki"</span>
-                </div>
             </div>
         </div>
     }
