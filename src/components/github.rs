@@ -116,8 +116,8 @@ pub fn GithubActivity() -> impl IntoView {
 
                             view! {
                                 <div class="chart-container" style="margin-bottom: 20px; padding: 10px; border-bottom: 1px solid var(--bg2);">
-                                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
-                                        <h4 style="margin: 0; color: var(--fg4);">"Activity Pulse (Last 30 Days)"</h4>
+                                    <div style="margin-bottom: 10px;">
+                                        <h4 style="margin: 0 0 4px 0; color: var(--fg4); font-size: 0.9em;">"Activity (Last 30 Days)"</h4>
                                         <span style="font-size: 0.8em; color: var(--gray);">
                                             {format!("Total: {}", daily_counts.values().sum::<i32>())}
                                         </span>
@@ -151,6 +151,7 @@ pub fn GithubActivity() -> impl IntoView {
                                 <h4 style="margin: 10px 0; color: var(--fg4);">"Recent Events"</h4>
                                 <ul class="event-list">
                                     {events.into_iter().take(10).map(|event| {
+                                        let repo_url = format!("https://github.com/{}", event.repo.name);
                                         view! {
                                             <li class="event-item">
                                                 <span class="event-time">
@@ -159,9 +160,9 @@ pub fn GithubActivity() -> impl IntoView {
                                                 <span class="event-type" style="color: var(--purple)">
                                                     {format!("[{}] ", event.event_type.replace("Event", ""))}
                                                 </span>
-                                                <span class="event-repo" style="color: var(--blue)">
+                                                <a href=repo_url target="_blank" class="event-repo" style="color: var(--blue)">
                                                     {event.repo.name}
-                                                </span>
+                                                </a>
                                             </li>
                                         }
                                     }).collect_view()}
