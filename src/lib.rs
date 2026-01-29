@@ -107,7 +107,7 @@ pub fn App() -> impl IntoView {
     let get_title = |id: usize| {
         match ContentId::from(id) {
             ContentId::Profile => "~/about",
-            ContentId::Github => "~/github-activity",
+            ContentId::Github => "~/github",
             ContentId::Contact => "~/contact",
             ContentId::Future => "~/future",
         }
