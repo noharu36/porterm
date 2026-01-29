@@ -52,6 +52,22 @@
     box-sizing: border-box;
 }
 
+/* Link Styles - Visible on dark background */
+a {
+    color: var(--aqua);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--green);
+    text-decoration: underline;
+}
+
+a:visited {
+    color: var(--aqua);
+}
+
 body {
     background-color: var(--bg-body);
     color: var(--fg);
