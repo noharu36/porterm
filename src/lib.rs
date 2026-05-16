@@ -96,7 +96,7 @@ pub fn App() -> impl IntoView {
                 <h3>"Contact Me"</h3>
                 <p>"Github: " <a href="https://github.com/noharu36">"github.com/noharu36"</a></p>
                 <p>"Twitter(X): " <a href="https://x.com/pieceofharuki">"@pieceofharuki"</a></p>
-                <p>"Blog: " <a href="https://zenn.dev/haru_blog">"zenn.dev/haru_blog"</a></p>
+                <p>"Speaker Deck: " <a href="https://speakerdeck.com/noharu36">"speakerdeck.com/noharu36"</a></p>
             </div>
         }
         .into_view(),
