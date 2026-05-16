@@ -24,7 +24,6 @@ async fn fetch_article_list() -> Result<Vec<ArticleMeta>, String> {
     }
 
     let articles: Vec<ArticleMeta> = resp.json().await.map_err(|e| e.to_string())?;
-    // publish: true のみ返す
     Ok(articles.into_iter().filter(|a| a.publish).collect())
 }
 
@@ -55,6 +54,37 @@ fn markdown_to_html(markdown: &str) -> String {
     html_output
 }
 
+/// URLハッシュからスラッグを取得
+fn get_slug_from_hash() -> Option<String> {
+    let hash = window().location().hash().unwrap_or_default();
+    if hash.starts_with("#/blog/") {
+        let slug = hash.trim_start_matches("#/blog/");
+        if !slug.is_empty() {
+            return Some(slug.to_string());
+        }
+    }
+    None
+}
+
+/// URLハッシュを記事スラッグに設定
+fn set_article_hash(slug: &str) {
+    let _ = window().location().set_hash(&format!("/blog/{}", slug));
+}
+
+/// URLハッシュをクリア（pushState でハッシュなしURLに遷移）
+fn clear_article_hash() {
+    let pathname = window().location().pathname().unwrap_or_default();
+    let _ = js_sys::eval(&format!("history.pushState(null, '', '{}')", pathname));
+}
+
+/// 記事のフルURLを生成
+fn get_article_url(slug: &str) -> String {
+    let loc = window().location();
+    let origin = loc.origin().unwrap_or_default();
+    let pathname = loc.pathname().unwrap_or_default();
+    format!("{}{}#/blog/{}", origin, pathname, slug)
+}
+
 /// ブログ一覧コンポーネント
 #[component]
 pub fn Blog() -> impl IntoView {
@@ -64,9 +94,48 @@ pub fn Blog() -> impl IntoView {
     let (selected_article, set_selected_article) = create_signal::<Option<ArticleMeta>>(None);
     let (is_maximized, set_is_maximized) = create_signal(false);
 
+    // URL ハッシュから開くべき記事のスラッグ
+    let (pending_slug, set_pending_slug) = create_signal::<Option<String>>(get_slug_from_hash());
+
+    // 記事一覧ロード後に pending_slug の記事を自動で開く
+    create_effect(move |_| {
+        if let Some(slug) = pending_slug.get() {
+            if let Some(Ok(articles)) = articles_resource.get() {
+                if let Some(article) = articles.iter().find(|a| a.slug == slug) {
+                    set_selected_article.set(Some(article.clone()));
+                }
+                set_pending_slug.set(None);
+            }
+        }
+    });
+
+    // ブラウザの戻る/進むボタンでモーダルの開閉を同期
+    {
+        use wasm_bindgen::prelude::*;
+        use wasm_bindgen::JsCast;
+
+        let on_nav = Closure::wrap(Box::new(move || {
+            match get_slug_from_hash() {
+                Some(slug) => set_pending_slug.set(Some(slug)),
+                None => {
+                    set_selected_article.set(None);
+                    set_is_maximized.set(false);
+                }
+            }
+        }) as Box<dyn FnMut()>);
+
+        // hashchange: set_hash() による変更を検知
+        let _ = window().add_event_listener_with_callback(
+            "popstate",
+            on_nav.as_ref().unchecked_ref(),
+        );
+        on_nav.forget();
+    }
+
     let close_modal = move |_| {
         set_selected_article.set(None);
         set_is_maximized.set(false);
+        clear_article_hash();
     };
 
     let toggle_maximize = move |_| {
@@ -96,6 +165,7 @@ pub fn Blog() -> impl IntoView {
                                                 <button
                                                     class="blog-card"
                                                     on:click=move |_| {
+                                                        set_article_hash(&article_for_click.slug);
                                                         set_selected.set(Some(article_for_click.clone()));
                                                     }
                                                 >
@@ -121,7 +191,7 @@ pub fn Blog() -> impl IntoView {
                 }}
             </Suspense>
 
-            // モーダル（Portal で body 直下にレンダリングし、スタッキングコンテキストの問題を回避）
+            // モーダル（Portal で body 直下にレンダリング）
             {move || {
                 selected_article.get().map(|article| {
                     let article_clone = article.clone();
@@ -150,18 +220,48 @@ fn ArticleModal(
     on_toggle_maximize: impl Fn(ev::MouseEvent) + 'static + Copy,
 ) -> impl IntoView {
     let slug = article.slug.clone();
+    let slug_for_x = article.slug.clone();
+    let slug_for_copy = article.slug.clone();
+    let title_for_x = article.title.clone();
+
     let content_resource = create_resource(
         move || slug.clone(),
         |slug| fetch_article_content(slug),
     );
 
+    // コピー完了フィードバック
+    let (copied, set_copied) = create_signal(false);
+
+    // X (Twitter) シェア
+    let share_on_x = move |_: ev::MouseEvent| {
+        let url = get_article_url(&slug_for_x);
+        let encoded_url = js_sys::encode_uri_component(&url).to_string();
+        let encoded_text = js_sys::encode_uri_component(&title_for_x).to_string();
+        let share_url = format!(
+            "https://twitter.com/intent/tweet?url={}&text={}",
+            encoded_url, encoded_text
+        );
+        let _ = js_sys::eval(&format!("window.open('{}', '_blank')", share_url));
+    };
+
+    // URLコピー
+    let copy_url = move |_: ev::MouseEvent| {
+        let url = get_article_url(&slug_for_copy);
+        let _ = js_sys::eval(&format!(
+            "navigator.clipboard.writeText(\"{}\")",
+            url.replace('"', "\\\"")
+        ));
+        set_copied.set(true);
+        set_timeout(
+            move || set_copied.set(false),
+            std::time::Duration::from_millis(2000),
+        );
+    };
+
     // ESCキーでモーダルを閉じる
     let on_close_for_key = on_close.clone();
     let on_keydown = move |e: ev::KeyboardEvent| {
         if e.key() == "Escape" {
-            // MouseEvent を生成してコールバックに渡す
-            // 代わりに直接閉じるシグナルを使う方がクリーンだが、
-            // 既存のコールバック型に合わせる
             use wasm_bindgen::JsCast;
             if let Ok(event) = web_sys::MouseEvent::new("click") {
                 on_close_for_key(event.unchecked_into());
@@ -217,6 +317,24 @@ fn ArticleModal(
                             })
                         }}
                     </Suspense>
+
+                    // シェアセクション（記事下部）
+                    <div class="share-section">
+                        <span class="share-label">"Share"</span>
+                        <div class="share-buttons">
+                            <button class="share-btn" title="Share on X" on:click=share_on_x>
+                                "𝕏 Post"
+                            </button>
+                            <button
+                                class="share-btn"
+                                class:copied=move || copied.get()
+                                title="Copy link"
+                                on:click=copy_url
+                            >
+                                {move || if copied.get() { "✓ Copied!" } else { "Copy URL" }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
