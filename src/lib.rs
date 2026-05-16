@@ -3,8 +3,8 @@ use leptos_meta::*;
 
 mod components;
 use components::bar::Bar;
+use components::blog::Blog;
 use components::github::GithubActivity;
-use components::placeholder::Placeholder;
 use components::profile::Profile;
 use components::window::Window;
 
@@ -13,7 +13,7 @@ enum ContentId {
     Profile = 1,
     Github = 2,
     Contact = 3,
-    Future = 4,
+    Blog = 4,
 }
 
 impl From<usize> for ContentId {
@@ -22,7 +22,7 @@ impl From<usize> for ContentId {
             1 => ContentId::Profile,
             2 => ContentId::Github,
             3 => ContentId::Contact,
-            4 => ContentId::Future,
+            4 => ContentId::Blog,
             _ => ContentId::Profile,
         }
     }
@@ -100,7 +100,7 @@ pub fn App() -> impl IntoView {
             </div>
         }
         .into_view(),
-        ContentId::Future => view! { <Placeholder/> }.into_view(),
+        ContentId::Blog => view! { <Blog/> }.into_view(),
     };
 
     // Helper to get title based on ID
@@ -109,7 +109,7 @@ pub fn App() -> impl IntoView {
             ContentId::Profile => "~/about",
             ContentId::Github => "~/github",
             ContentId::Contact => "~/contact",
-            ContentId::Future => "~/future",
+            ContentId::Blog => "~/blog",
         }
         .to_string()
     };

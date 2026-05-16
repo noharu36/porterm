@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "dmm_intern_2025",
+    "title": "DMMで１ヶ月インターンしてきた話",
+    "tags": ["Tech"],
+    "publish": true
+  },
+  {
+    "slug": "test_article",
+    "title": "ポートフォリオサイトをRust (WASM) で作った話",
+    "tags": ["Tech", "Rust"],
+    "publish": true
+  }
+]

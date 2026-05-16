@@ -10,7 +10,7 @@ pub fn Bar(
         (1, "1: about"),
         (2, "2: github"),
         (3, "3: contact"),
-        (4, "4: future"),
+        (4, "4: blog"),
     ];
 
     view! {

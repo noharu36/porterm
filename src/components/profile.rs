@@ -9,7 +9,7 @@ pub fn Profile() -> impl IntoView {
             </div>
             <div class="info-list">
                 <div class="info-item" style="border: none; margin-bottom: 5px;">
-                    <span class="value" style="color: var(--fg); font-weight: bold;">"harukun@myhostname"</span>
+                    <span class="value" style="color: var(--fg); font-weight: bold;">"harukun@zli.uoa"</span>
                 </div>
                 <div class="info-item" style="border: none; margin-bottom: 5px;">
                      <span class="value">"-----------"</span>
@@ -17,7 +17,7 @@ pub fn Profile() -> impl IntoView {
 
                 <div class="info-item">
                     <span class="key">"OS"</span>
-                    <span class="value">"macOS Tahoe 26.2 arm64"</span>
+                    <span class="value">"macOS Tahoe 26.5 arm64"</span>
                 </div>
                 <div class="info-item">
                     <span class="key">"Host"</span>
@@ -41,7 +41,7 @@ pub fn Profile() -> impl IntoView {
                 </div>
                  <div class="info-item">
                     <span class="key">"Terminal"</span>
-                    <span class="value">"rio 0.2.37"</span>
+                    <span class="value">"wezterm"</span>
                 </div>
             </div>
         </div>
