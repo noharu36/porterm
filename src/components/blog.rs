@@ -54,11 +54,11 @@ fn markdown_to_html(markdown: &str) -> String {
     html_output
 }
 
-/// URLハッシュからスラッグを取得
-fn get_slug_from_hash() -> Option<String> {
-    let hash = window().location().hash().unwrap_or_default();
-    if hash.starts_with("#/blog/") {
-        let slug = hash.trim_start_matches("#/blog/");
+/// URLパスからスラッグを取得
+fn get_slug_from_path() -> Option<String> {
+    let pathname = window().location().pathname().unwrap_or_default();
+    if pathname.starts_with("/blog/") {
+        let slug = pathname.trim_start_matches("/blog/");
         if !slug.is_empty() {
             return Some(slug.to_string());
         }
@@ -66,23 +66,24 @@ fn get_slug_from_hash() -> Option<String> {
     None
 }
 
-/// URLハッシュを記事スラッグに設定
-fn set_article_hash(slug: &str) {
-    let _ = window().location().set_hash(&format!("/blog/{}", slug));
+/// URLパスを記事スラッグに設定
+fn set_article_path(slug: &str) {
+    let _ = js_sys::eval(&format!(
+        "history.pushState(null, '', '/blog/{}')",
+        slug
+    ));
 }
 
-/// URLハッシュをクリア（pushState でハッシュなしURLに遷移）
-fn clear_article_hash() {
-    let pathname = window().location().pathname().unwrap_or_default();
-    let _ = js_sys::eval(&format!("history.pushState(null, '', '{}')", pathname));
+/// URLをクリア（pushState でトップURLに遷移）
+fn clear_article_path() {
+    let _ = js_sys::eval("history.pushState(null, '', '/')");
 }
 
 /// 記事のフルURLを生成
 fn get_article_url(slug: &str) -> String {
     let loc = window().location();
     let origin = loc.origin().unwrap_or_default();
-    let pathname = loc.pathname().unwrap_or_default();
-    format!("{}{}#/blog/{}", origin, pathname, slug)
+    format!("{}/blog/{}", origin, slug)
 }
 
 /// ブログ一覧コンポーネント
@@ -94,8 +95,8 @@ pub fn Blog() -> impl IntoView {
     let (selected_article, set_selected_article) = create_signal::<Option<ArticleMeta>>(None);
     let (is_maximized, set_is_maximized) = create_signal(false);
 
-    // URL ハッシュから開くべき記事のスラッグ
-    let (pending_slug, set_pending_slug) = create_signal::<Option<String>>(get_slug_from_hash());
+    // URL パスから開くべき記事のスラッグ
+    let (pending_slug, set_pending_slug) = create_signal::<Option<String>>(get_slug_from_path());
 
     // 記事一覧ロード後に pending_slug の記事を自動で開く
     create_effect(move |_| {
@@ -115,7 +116,7 @@ pub fn Blog() -> impl IntoView {
         use wasm_bindgen::JsCast;
 
         let on_nav = Closure::wrap(Box::new(move || {
-            match get_slug_from_hash() {
+            match get_slug_from_path() {
                 Some(slug) => set_pending_slug.set(Some(slug)),
                 None => {
                     set_selected_article.set(None);
@@ -135,7 +136,7 @@ pub fn Blog() -> impl IntoView {
     let close_modal = move |_| {
         set_selected_article.set(None);
         set_is_maximized.set(false);
-        clear_article_hash();
+        clear_article_path();
     };
 
     let toggle_maximize = move |_| {
@@ -165,7 +166,7 @@ pub fn Blog() -> impl IntoView {
                                                 <button
                                                     class="blog-card"
                                                     on:click=move |_| {
-                                                        set_article_hash(&article_for_click.slug);
+                                                        set_article_path(&article_for_click.slug);
                                                         set_selected.set(Some(article_for_click.clone()));
                                                     }
                                                 >

@@ -6,9 +6,6 @@ export default {
   async fetch(request, env, ctx) {
     // 静的アセットは wrangler.toml の [assets] 設定により自動配信
     // ここではフォールバックとして index.html を返す (SPA用)
-    const url = new URL(request.url);
-    
-    // アセットが見つからない場合は index.html にフォールバック (SPA対応)
     // Workers Static Assets は自動的にアセットを優先するため、
     // このロジックは通常トリガーされません
     return env.ASSETS.fetch(request);
